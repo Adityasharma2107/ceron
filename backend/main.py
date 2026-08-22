@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from detectors.prompt_injection import detect_prompt_injection
 
 app = FastAPI() # We're creating a FastAPI application object.
 
@@ -11,23 +12,24 @@ class AnalysisRequest(BaseModel):            # BaseModel:- Create my AnalysisReq
 
 @app.get("/") # means:- "When the application receives a GET request for /, use the function immediately below this line."#
 async def root():                                  # root is simply the name of the function we can use other name and itll stil work, 
-     return {"name":"ceron","status":"online"}     # def root(): This creates a Python function 
+     return {"name":"ceron","status":"online"}     # def root(): This creates a Python function def = define
                                                    #async tells Python:"This function can operate asynchronously."
                
 
 @app.get("/api/v1/health")
-async def health_check():                        # performs health check up ou api/url/web
+async def health_check():                        # performs health check up ou api/url/web weather it is healthy or not 
      return{"status":"healthy"} 
 
 
-@app.post("/api/v1/analyze")  
+@app.post("/api/v1/analyze")                        
 async def analyze(request: AnalysisRequest):
+    detected = detect_prompt_injection(request.text) # this is a function call . Pydantic creates an object called:request and inside that object is:request.text
     return {
         "text": request.text,
-        "status": "received"
+        "prompt_injection_detected": detected
     }
 
 
 
  
-                                          
+                                        
