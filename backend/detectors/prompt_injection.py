@@ -10,11 +10,13 @@ def detect_prompt_injection(text):
         if pattern in text:                    # pattern in Text is case sensitive  to over come this we will convert all text to lower case 
             return{
                 "detected": True,              # "detected" is a string being used as a dictionary key. True is a Boolean value.
-                "type": "prompt_injection"
+                "type": "prompt_injection",
+                "severity": "high"
             }                                  # suppose we call detect_promp t_injection("Hello Ceron") the function checks all the  list itens in suspicious patterns                               
     return{
          "detected": False,
-         "type": None    
+         "type": None,
+         "severity":"none"  
     }                                         # if there is no presence of any list item it will return false if it will have it will return true
                                               #text= text.lower() [first version of code on line i.e text= ] # converts all text to lower case  also called normalization. but spaces will also cause problems this is solved by the next line  
 
