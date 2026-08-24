@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from detectors.prompt_injection import detect_prompt_injection
+from services.analyzer import analyze_text
 
 app = FastAPI() # We're creating a FastAPI application object.
 
@@ -23,8 +23,8 @@ async def health_check():                        # performs health check up ou a
 
 @app.post("/api/v1/analyze")                        
 async def analyze(request: AnalysisRequest):
-    result = detect_prompt_injection(request.text) # this is a function call .
-    return {                                       #We are storing the result in a variable called result.
+    result = analyze_text(request.text)            # this is a function call .
+    return {                                       # We are storing the result in a variable called result.
         "text": request.text,                      # Pydantic creates an object called:request and inside that object is:request.text 
         "security_analysis": result
     }
