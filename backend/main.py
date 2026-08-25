@@ -1,35 +1,63 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Literal
+
 from services.analyzer import analyze_text
 
-app = FastAPI() # We're creating a FastAPI application object.
+
+app = FastAPI()
 
 
+class AnalysisRequest(BaseModel):
+    # Text that Ceron will analyze.
+    # Minimum: 1 character
+    # Maximum: 10,000 characters
+    text: str = Field(
+        min_length=1,
+        max_length=10000
+    )
 
-class AnalysisRequest(BaseModel):            # BaseModel:- Create my AnalysisRequest model based on Pydantic's BaseModel
-    text: str                                #BaseModel is a class provided by Pydantic.We're going to inherit from it to create our own data model.
-                                             #AnalysisRequest;- It's simply the name we've chosen.
+class DetectorResult(BaseModel):
+    # Whether this detector found a security issue.
+    detected: bool
 
-@app.get("/") # means:- "When the application receives a GET request for /, use the function immediately below this line."#
-async def root():                                  # root is simply the name of the function we can use other name and itll stil work, 
-     return {"name":"ceron","status":"online"}     # def root(): This creates a Python function def = define
-                                                   #async tells Python:"This function can operate asynchronously."
-               
+    # Detector type, or None when nothing was detected.
+    type: Literal["prompt_injection", "pii"] | None
 
-@app.get("/api/v1/health")
-async def health_check():                        # performs health check up ou api/url/web weather it is healthy or not 
-     return{"status":"healthy"} 
+    # Severity assigned by the detector.
+    severity: Literal["none", "low", "medium", "high"]
+
+    # PII categories such as email or phone.
+    categories: list[str] | None = None
 
 
-@app.post("/api/v1/analyze")                        
+class SecurityAnalysis(BaseModel):
+    # Whether any detector found a security issue.
+    detected: bool
+
+    # Highest severity across all detectors.
+    severity: Literal["none", "low", "medium", "high"]
+
+    # Results from every registered detector.
+    results: list[DetectorResult]
+
+
+class AnalysisResponse(BaseModel):
+    # Original text sent by the client.
+    text: str
+
+    # Combined security analysis.
+    security_analysis: SecurityAnalysis
+
+
+@app.post(
+    "/api/v1/analyze",
+    response_model=AnalysisResponse
+)
 async def analyze(request: AnalysisRequest):
-    result = analyze_text(request.text)            # this is a function call .
-    return {                                       # We are storing the result in a variable called result.
-        "text": request.text,                      # Pydantic creates an object called:request and inside that object is:request.text 
+    result = analyze_text(request.text)
+
+    return {
+        "text": request.text,
         "security_analysis": result
     }
-
-
-
- 
-                                        
