@@ -1,6 +1,7 @@
 # seperste test for analyze.py 
 
 from services.analyzer import analyze_text, get_highest_severity
+from detectors.registry import DETECTORS
 
 
 def test_analyze_normal_text():
@@ -35,3 +36,7 @@ def test_highest_severity_all_low():
     result = get_highest_severity(["none", "low"])
 
     assert result == "low"
+
+def test_detector_registry():
+    assert len(DETECTORS) >= 1
+    assert callable(DETECTORS[0])
