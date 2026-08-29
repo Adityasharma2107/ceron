@@ -1,23 +1,26 @@
 // Base URL for the Ceron backend.
-//
-// NEXT_PUBLIC_API_URL lets us change the backend address later
-// without rewriting frontend code.
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 // Result returned by an individual Ceron detector.
 export interface DetectorResult {
   detected: boolean;
-  type: string;
+  type: string | null;
   severity: string;
-  categories?: string[];
+  categories?: string[] | null;
 }
 
-// Combined response returned by Ceron's analyzer.
-export interface AnalyzeResponse {
+// Combined security analysis.
+export interface SecurityAnalysis {
   detected: boolean;
   severity: string;
   results: DetectorResult[];
+}
+
+// Complete response returned by Ceron's analysis API.
+export interface AnalyzeResponse {
+  text: string;
+  security_analysis: SecurityAnalysis;
 }
 
 /**
@@ -30,18 +33,15 @@ export async function analyzeText(
     `${API_BASE_URL}/api/v1/analyze`,
     {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         text,
       }),
     },
   );
 
-  // Convert backend failures into a useful frontend error.
   if (!response.ok) {
     throw new Error(
       `Analysis request failed (${response.status})`,
