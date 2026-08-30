@@ -77,3 +77,48 @@ class AnalysisResult(Base):
     analysis: Mapped["Analysis"] = relationship(
         back_populates="results",
     )
+
+
+class Asset(Base):
+    """Represents a security asset that Ceron can assess."""
+
+    __tablename__ = "assets"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+    )
+
+    target: Mapped[str] = mapped_column(
+        String(500),
+        nullable=False,
+    )
+
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
