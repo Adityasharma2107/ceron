@@ -175,3 +175,75 @@ def test_api_multiple_detectors():
     # Second detector = PII.
     assert results[1]["type"] == "pii"
     assert results[1]["detected"] is True
+
+def test_create_asset():
+    """Creating an asset should return the persisted asset."""
+    response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "Production API",
+            "type": "api",
+            "target": "https://api.example.com",
+            "description": "Production API endpoint",
+        },
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["id"] > 0
+    assert data["name"] == "Production API"
+    assert data["type"] == "api"
+    assert data["target"] == "https://api.example.com"
+    assert data["description"] == "Production API endpoint"
+    assert data["created_at"]
+    assert data["updated_at"]
+
+
+def test_create_asset_without_description():
+    """Description should be optional when creating an asset."""
+    response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "Internal Service",
+            "type": "service",
+            "target": "internal-service",
+        },
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["name"] == "Internal Service"
+    assert data["type"] == "service"
+    assert data["target"] == "internal-service"
+    assert data["description"] is None
+
+
+def test_create_asset_empty_name():
+    """An empty asset name should be rejected."""
+    response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "",
+            "type": "api",
+            "target": "https://api.example.com",
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_create_asset_missing_required_field():
+    """Missing required asset fields should be rejected."""
+    response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "Production API",
+            "type": "api",
+        },
+    )
+
+    assert response.status_code == 422
