@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from db.models import Asset, Analysis
 from services.analyzer import analyze_text
+from services.analysis_service import save_analysis
 from services.asset_service import (
     create_asset,
     delete_asset,
@@ -88,14 +89,11 @@ async def analyze(
 
     result = analyze_text(request.text)
 
-    analysis = Analysis(
-        text=request.text,
-        severity=result["severity"],
-    )
-
-    db.add(analysis)
-    db.commit()
-    db.refresh(analysis)
+    save_analysis(
+    db=db,
+    text=request.text,
+    security_analysis=result,
+)
 
     return {
         "text": request.text,
