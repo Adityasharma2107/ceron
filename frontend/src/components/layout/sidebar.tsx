@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Bot,
   FileText,
   Gauge,
   LayoutDashboard,
+  Menu,
   Network,
   ScanSearch,
   Settings,
@@ -72,6 +74,8 @@ const navigation = [
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+  const pathname = usePathname();
+
   return (
     <aside
       className={cn(
@@ -94,7 +98,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
           {!collapsed && (
             <div className="min-w-0">
-              <p className="font-semibold tracking-tight">Ceron</p>
+              <p className="font-semibold tracking-tight">
+                Ceron
+              </p>
 
               <p className="truncate text-xs text-muted-foreground">
                 Security Intelligence
@@ -111,19 +117,27 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <div className="space-y-1">
           {navigation.map((item) => {
             const Icon = item.icon;
+            const isActive = pathname === item.href;
 
             return (
               <Link
                 key={item.label}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex h-9 w-full items-center rounded-md px-3 text-sm font-medium transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
+                  "group flex h-9 w-full items-center rounded-md px-3 text-sm font-medium transition-colors duration-200",
+                  "text-foreground/80 hover:bg-accent hover:text-accent-foreground",
+                  isActive &&
+                    "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
                   collapsed && "justify-center px-0",
                 )}
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className="size-4 shrink-0" />
+                <Icon
+                  className="size-4 shrink-0"
+                  strokeWidth={1.8}
+                  aria-hidden="true"
+                />
 
                 {!collapsed && (
                   <span className="ml-3 truncate">
@@ -153,9 +167,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               : "Collapse sidebar"
           }
         >
-          <span aria-hidden="true">
-            {collapsed ? "→" : "←"}
-          </span>
+          <Menu
+            className="size-4"
+            strokeWidth={1.8}
+            aria-hidden="true"
+          />
 
           {!collapsed && (
             <span className="ml-2">

@@ -46,7 +46,11 @@ export function Topbar({
           onClick={onMobileMenu}
           aria-label="Open navigation"
         >
-          <Menu className="size-5" />
+          <Menu
+            className="size-5"
+            strokeWidth={1.8}
+            aria-hidden="true"
+          />
         </Button>
 
         {/* Desktop sidebar toggle */}
@@ -56,10 +60,16 @@ export function Topbar({
           className="hidden md:inline-flex"
           onClick={onSidebarToggle}
           aria-label={
-            sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+            sidebarCollapsed
+              ? "Expand sidebar"
+              : "Collapse sidebar"
           }
         >
-          <Menu className="size-5" />
+          <Menu
+            className="size-5"
+            strokeWidth={1.8}
+            aria-hidden="true"
+          />
         </Button>
 
         <Separator orientation="vertical" className="mx-2 h-6" />
@@ -70,8 +80,15 @@ export function Topbar({
             variant="outline"
             className="w-full justify-start gap-2 text-muted-foreground"
           >
-            <Search className="size-4 shrink-0" />
-            <span className="truncate">Search Ceron...</span>
+            <Search
+              className="size-4 shrink-0"
+              strokeWidth={1.8}
+              aria-hidden="true"
+            />
+
+            <span className="truncate">
+              Search Ceron...
+            </span>
           </Button>
         </div>
       </div>
@@ -90,18 +107,31 @@ export function Topbar({
           }
         >
           {mounted && theme === "dark" ? (
-            <Sun className="size-5" />
+            <Sun
+              className="size-5"
+              strokeWidth={1.8}
+              aria-hidden="true"
+            />
           ) : (
-            <Moon className="size-5" />
+            <Moon
+              className="size-5"
+              strokeWidth={1.8}
+              aria-hidden="true"
+            />
           )}
         </Button>
 
+        {/* Notifications */}
         <Button
           variant="ghost"
           size="icon"
           aria-label="Notifications"
         >
-          <Bell className="size-5" />
+          <Bell
+            className="size-5"
+            strokeWidth={1.8}
+            aria-hidden="true"
+          />
         </Button>
 
         {/* Temporary profile control */}

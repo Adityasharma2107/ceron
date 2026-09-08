@@ -267,7 +267,8 @@ export default function AssetsPage() {
                 />
 
                 <p className="text-xs text-muted-foreground">
-                  The URL, hostname, service, or other target associated with this asset.
+                  The URL, hostname, service, or other target associated
+                  with this asset.
                 </p>
               </div>
 
@@ -291,7 +292,8 @@ export default function AssetsPage() {
                 />
 
                 <p className="text-xs text-muted-foreground">
-                  Add useful context about the asset for security analysis and monitoring.
+                  Add useful context about the asset for security analysis
+                  and monitoring.
                 </p>
               </div>
 
@@ -329,6 +331,7 @@ export default function AssetsPage() {
             </form>
           </CardContent>
         </Card>
+
         {loading && (
           <p className="mt-8 text-sm text-muted-foreground">
             Loading assets...
@@ -348,57 +351,68 @@ export default function AssetsPage() {
         )}
 
         {!loading && !error && assets.length > 0 && (
-          <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-card/70 backdrop-blur-xl">
-            <div className="grid grid-cols-6 border-b border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium">
-              <span>Name</span>
-              <span>Type</span>
-              <span>Target</span>
-              <span>Description</span>
-              <span>Edit</span>
-              <span>Delete</span>
-            </div>
-
-            {assets.map((asset) => (
-              <div
-                key={asset.id}
-                className="group grid grid-cols-[2fr_1fr_2fr_2fr_auto_auto] items-center gap-4 border-b border-border/60 px-4 py-4 text-sm transition-colors duration-200 last:border-b-0 hover:bg-primary/[0.04] dark:hover:bg-primary/[0.06]"               >
-                <span className="font-medium">
-                  {asset.name}
-                </span>
-
-                <span>{asset.type}</span>
-
-                <span className="truncate">
-                  {asset.target}
-                </span>
-
-                <span className="text-muted-foreground">
-                  {asset.description || "—"}
-                </span>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => startEditing(asset)}
-                  disabled={deletingAssetId === asset.id}
-                >
-                  Edit
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(asset)}
-                  disabled={deletingAssetId === asset.id}
-                >
-                  {deletingAssetId === asset.id
-                    ? "Deleting..."
-                    : "Delete"}
-                </Button>
+          <div className="mt-8 overflow-x-auto rounded-xl border border-border/70 bg-card/80 shadow-sm backdrop-blur-xl dark:bg-card/70">
+            <div className="min-w-[900px]">
+              <div className="grid grid-cols-[2fr_1fr_2fr_2fr_auto_auto] items-center gap-4 border-b border-border/70 bg-muted/40 px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <span>Name</span>
+                <span>Type</span>
+                <span>Target</span>
+                <span>Description</span>
+                <span>Edit</span>
+                <span>Delete</span>
               </div>
-            ))}
+
+              {assets.map((asset) => (
+                <div
+                  key={asset.id}
+                  className="group grid grid-cols-[2fr_1fr_2fr_2fr_auto_auto] items-center gap-4 border-b border-border/60 px-4 py-4 text-sm transition-colors duration-200 last:border-b-0 hover:bg-primary/[0.04] dark:hover:bg-primary/[0.06]"
+                >
+                  <span className="min-w-0 truncate font-medium">
+                    {asset.name}
+                  </span>
+
+                  <span className="font-mono text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {asset.type}
+                  </span>
+
+                  <span
+                    className="min-w-0 truncate font-mono text-xs text-muted-foreground"
+                    title={asset.target}
+                  >
+                    {asset.target}
+                  </span>
+
+                  <span
+                    className="min-w-0 truncate text-muted-foreground"
+                    title={asset.description || undefined}
+                  >
+                    {asset.description || "—"}
+                  </span>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => startEditing(asset)}
+                    disabled={deletingAssetId === asset.id}
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(asset)}
+                    disabled={deletingAssetId === asset.id}
+                  >
+                    {deletingAssetId === asset.id
+                      ? "Deleting..."
+                      : "Delete"}
+                  </Button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </PageContainer>
