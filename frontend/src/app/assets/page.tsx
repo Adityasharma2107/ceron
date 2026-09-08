@@ -1,7 +1,17 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useState,
+  type ChangeEvent,
+} from "react";
+
 import { AppShell } from "@/components/layout/app-shell";
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/layout/page-header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Asset = {
   id: number;
@@ -149,7 +159,9 @@ export default function AssetsPage() {
       }
 
       setAssets((currentAssets) =>
-        currentAssets.filter((currentAsset) => currentAsset.id !== asset.id),
+        currentAssets.filter(
+          (currentAsset) => currentAsset.id !== asset.id,
+        ),
       );
 
       if (editingAssetId === asset.id) {
@@ -164,14 +176,13 @@ export default function AssetsPage() {
 
   return (
     <AppShell>
-      <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Assets</h1>
+      <PageContainer>
+        <PageHeader
+          title="Assets"
+          description="Manage and monitor your security assets."
+        />
 
-        <p className="mt-2 text-muted-foreground">
-          Manage and monitor your security assets.
-        </p>
-
-        <div className="mt-8 rounded-lg border p-6">
+        <div className="rounded-lg border p-6">
           <h2 className="text-lg font-semibold">
             {editingAssetId !== null ? "Edit Asset" : "Add Asset"}
           </h2>
@@ -194,14 +205,16 @@ export default function AssetsPage() {
                 Name
               </label>
 
-              <input
+              <Input
                 id="name"
                 type="text"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setName(event.target.value)
+                }
                 placeholder="Production API"
                 required
-                className="mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="mt-2"
               />
             </div>
 
@@ -213,14 +226,16 @@ export default function AssetsPage() {
                 Type
               </label>
 
-              <input
+              <Input
                 id="type"
                 type="text"
                 value={type}
-                onChange={(event) => setType(event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setType(event.target.value)
+                }
                 placeholder="api"
                 required
-                className="mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="mt-2"
               />
             </div>
 
@@ -232,14 +247,16 @@ export default function AssetsPage() {
                 Target
               </label>
 
-              <input
+              <Input
                 id="target"
                 type="text"
                 value={target}
-                onChange={(event) => setTarget(event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setTarget(event.target.value)
+                }
                 placeholder="https://api.example.com"
                 required
-                className="mt-2 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="mt-2"
               />
             </div>
 
@@ -268,10 +285,9 @@ export default function AssetsPage() {
             )}
 
             <div className="flex gap-2 sm:col-span-2">
-              <button
+              <Button
                 type="submit"
                 disabled={saving}
-                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving
                   ? editingAssetId !== null
@@ -280,17 +296,17 @@ export default function AssetsPage() {
                   : editingAssetId !== null
                     ? "Update Asset"
                     : "Create Asset"}
-              </button>
+              </Button>
 
               {editingAssetId !== null && (
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={resetForm}
                   disabled={saving}
-                  className="rounded-md border px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Cancel
-                </button>
+                </Button>
               )}
             </div>
           </form>
@@ -321,8 +337,8 @@ export default function AssetsPage() {
               <span>Type</span>
               <span>Target</span>
               <span>Description</span>
-              <span>Actions</span>
-              <span />
+              <span>Edit</span>
+              <span>Delete</span>
             </div>
 
             {assets.map((asset) => (
@@ -340,28 +356,32 @@ export default function AssetsPage() {
                   {asset.description || "—"}
                 </span>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => startEditing(asset)}
                   disabled={deletingAssetId === asset.id}
-                  className="w-fit rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Edit
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
+                  variant="destructive"
+                  size="sm"
                   onClick={() => handleDelete(asset)}
                   disabled={deletingAssetId === asset.id}
-                  className="w-fit rounded-md border px-3 py-1.5 text-sm font-medium text-destructive hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {deletingAssetId === asset.id ? "Deleting..." : "Delete"}
-                </button>
+                  {deletingAssetId === asset.id
+                    ? "Deleting..."
+                    : "Delete"}
+                </Button>
               </div>
             ))}
           </div>
         )}
-      </section>
+      </PageContainer>
     </AppShell>
   );
 }
