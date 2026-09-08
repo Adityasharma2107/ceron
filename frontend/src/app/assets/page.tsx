@@ -11,6 +11,13 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 type Asset = {
@@ -182,135 +189,141 @@ export default function AssetsPage() {
           description="Manage and monitor your security assets."
         />
 
-        <div className="rounded-lg border p-6">
-          <h2 className="text-lg font-semibold">
-            {editingAssetId !== null ? "Edit Asset" : "Add Asset"}
-          </h2>
+        <Card glow="blue">
+          <CardHeader>
+            <CardTitle>
+              {editingAssetId !== null ? "Edit Asset" : "Add Asset"}
+            </CardTitle>
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            {editingAssetId !== null
-              ? "Update the selected security asset."
-              : "Add a new asset to your Ceron security inventory."}
-          </p>
+            <CardDescription>
+              {editingAssetId !== null
+                ? "Update the selected security asset."
+                : "Add a new asset to your Ceron security inventory."}
+            </CardDescription>
+          </CardHeader>
 
-          <form
-            onSubmit={handleSubmit}
-            className="mt-6 grid gap-4 sm:grid-cols-2"
-          >
-            <div>
-              <label
-                htmlFor="name"
-                className="text-sm font-medium"
-              >
-                Name
-              </label>
+          <CardContent>
+            <form
+              onSubmit={handleSubmit}
+              className="grid gap-4 sm:grid-cols-2"
+            >
+              <div>
+                <label
+                  htmlFor="name"
+                  className="text-sm font-medium"
+                >
+                  Name
+                </label>
 
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setName(event.target.value)
-                }
-                placeholder="Production API"
-                required
-                className="mt-2"
-              />
-            </div>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setName(event.target.value)
+                  }
+                  placeholder="Production API"
+                  required
+                  className="mt-2"
+                />
+              </div>
 
-            <div>
-              <label
-                htmlFor="type"
-                className="text-sm font-medium"
-              >
-                Type
-              </label>
+              <div>
+                <label
+                  htmlFor="type"
+                  className="text-sm font-medium"
+                >
+                  Type
+                </label>
 
-              <Input
-                id="type"
-                type="text"
-                value={type}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setType(event.target.value)
-                }
-                placeholder="api"
-                required
-                className="mt-2"
-              />
-            </div>
+                <Input
+                  id="type"
+                  type="text"
+                  value={type}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setType(event.target.value)
+                  }
+                  placeholder="api"
+                  required
+                  className="mt-2"
+                />
+              </div>
 
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="target"
-                className="text-sm font-medium"
-              >
-                Target
-              </label>
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="target"
+                  className="text-sm font-medium"
+                >
+                  Target
+                </label>
 
-              <Input
-                id="target"
-                type="text"
-                value={target}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setTarget(event.target.value)
-                }
-                placeholder="https://api.example.com"
-                required
-                className="mt-2"
-              />
-            </div>
+                <Input
+                  id="target"
+                  type="text"
+                  value={target}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setTarget(event.target.value)
+                  }
+                  placeholder="https://api.example.com"
+                  required
+                  className="mt-2"
+                />
+              </div>
 
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="description"
-                className="text-sm font-medium"
-              >
-                Description
-              </label>
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="description"
+                  className="text-sm font-medium"
+                >
+                  Description
+                </label>
 
-              <textarea
-                id="description"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder="Production API endpoint"
-                rows={3}
-                className="mt-2 w-full resize-none rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(event) =>
+                    setDescription(event.target.value)
+                  }
+                  placeholder="Production API endpoint"
+                  rows={3}
+                  className="mt-2 w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                />
+              </div>
 
-            {formError && (
-              <p className="sm:col-span-2 text-sm text-destructive">
-                {formError}
-              </p>
-            )}
+              {formError && (
+                <p className="sm:col-span-2 text-sm text-destructive">
+                  {formError}
+                </p>
+              )}
 
-            <div className="flex gap-2 sm:col-span-2">
-              <Button
-                type="submit"
-                disabled={saving}
-              >
-                {saving
-                  ? editingAssetId !== null
-                    ? "Updating..."
-                    : "Creating..."
-                  : editingAssetId !== null
-                    ? "Update Asset"
-                    : "Create Asset"}
-              </Button>
-
-              {editingAssetId !== null && (
+              <div className="flex gap-2 sm:col-span-2">
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={resetForm}
+                  type="submit"
                   disabled={saving}
                 >
-                  Cancel
+                  {saving
+                    ? editingAssetId !== null
+                      ? "Updating..."
+                      : "Creating..."
+                    : editingAssetId !== null
+                      ? "Update Asset"
+                      : "Create Asset"}
                 </Button>
-              )}
-            </div>
-          </form>
-        </div>
+
+                {editingAssetId !== null && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={resetForm}
+                    disabled={saving}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
         {loading && (
           <p className="mt-8 text-sm text-muted-foreground">
@@ -331,8 +344,8 @@ export default function AssetsPage() {
         )}
 
         {!loading && !error && assets.length > 0 && (
-          <div className="mt-8 overflow-hidden rounded-lg border">
-            <div className="grid grid-cols-6 border-b bg-muted/50 px-4 py-3 text-sm font-medium">
+          <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-card/70 backdrop-blur-xl">
+            <div className="grid grid-cols-6 border-b border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium">
               <span>Name</span>
               <span>Type</span>
               <span>Target</span>
@@ -344,13 +357,17 @@ export default function AssetsPage() {
             {assets.map((asset) => (
               <div
                 key={asset.id}
-                className="grid grid-cols-6 items-center border-b px-4 py-4 text-sm last:border-b-0"
+                className="grid grid-cols-6 items-center border-b border-white/10 px-4 py-4 text-sm last:border-b-0"
               >
-                <span className="font-medium">{asset.name}</span>
+                <span className="font-medium">
+                  {asset.name}
+                </span>
 
                 <span>{asset.type}</span>
 
-                <span className="truncate">{asset.target}</span>
+                <span className="truncate">
+                  {asset.target}
+                </span>
 
                 <span className="text-muted-foreground">
                   {asset.description || "—"}

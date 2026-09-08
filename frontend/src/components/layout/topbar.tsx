@@ -1,10 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Bell,
   Menu,
+  Moon,
   Search,
+  Sun,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -20,6 +24,17 @@ export function Topbar({
   onSidebarToggle,
   sidebarCollapsed,
 }: TopbarProps) {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  function toggleTheme() {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }
+
   return (
     <header className="flex h-16 w-full min-w-0 items-center border-b bg-background">
       <div className="flex min-w-0 flex-1 items-center gap-2 px-4">
@@ -63,6 +78,24 @@ export function Topbar({
 
       {/* Important actions only */}
       <div className="flex shrink-0 items-center gap-1 px-4">
+        {/* Theme toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          aria-label={
+            mounted && theme === "dark"
+              ? "Switch to light theme"
+              : "Switch to dark theme"
+          }
+        >
+          {mounted && theme === "dark" ? (
+            <Sun className="size-5" />
+          ) : (
+            <Moon className="size-5" />
+          )}
+        </Button>
+
         <Button
           variant="ghost"
           size="icon"
