@@ -14,7 +14,8 @@ function Card({
   const glowClasses = {
     none: "",
     blue: "hover:border-primary/40 hover:shadow-[0_0_30px_-12px_var(--primary)]",
-    cyan: "hover:border-cyan-400/40 hover:shadow-[0_0_30px_-12px_rgb(34_211_238)]",
+    cyan:
+      "hover:border-cyan-400/40 hover:shadow-[0_0_30px_-12px_rgb(34_211_238)]",
     violet:
       "hover:border-violet-400/40 hover:shadow-[0_0_30px_-12px_rgb(167_139_250)]",
     danger:
@@ -25,9 +26,9 @@ function Card({
     <div
       data-slot="card"
       className={cn(
-        "relative overflow-hidden rounded-xl border border-white/10",
-        "bg-card/80 backdrop-blur-xl",
-        "shadow-[0_8px_32px_-20px_rgba(0,0,0,0.8)]",
+        "relative overflow-hidden rounded-xl border border-border/70",
+        "bg-card/90 backdrop-blur-xl",
+        "shadow-sm dark:bg-card/75 dark:shadow-[0_8px_32px_-20px_rgba(0,0,0,0.8)]",
         "transition-all duration-300 ease-out",
         "hover:-translate-y-0.5",
         glowClasses[glow],

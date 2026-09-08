@@ -190,7 +190,7 @@ export default function AssetsPage() {
         />
 
         <Card glow="blue">
-          <CardHeader>
+          <CardHeader className="border-b border-border/60">
             <CardTitle>
               {editingAssetId !== null ? "Edit Asset" : "Add Asset"}
             </CardTitle>
@@ -202,12 +202,12 @@ export default function AssetsPage() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="pt-6">
             <form
               onSubmit={handleSubmit}
-              className="grid gap-4 sm:grid-cols-2"
+              className="grid gap-6 sm:grid-cols-2"
             >
-              <div>
+              <div className="space-y-2">
                 <label
                   htmlFor="name"
                   className="text-sm font-medium"
@@ -224,11 +224,10 @@ export default function AssetsPage() {
                   }
                   placeholder="Production API"
                   required
-                  className="mt-2"
                 />
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <label
                   htmlFor="type"
                   className="text-sm font-medium"
@@ -245,11 +244,10 @@ export default function AssetsPage() {
                   }
                   placeholder="api"
                   required
-                  className="mt-2"
                 />
               </div>
 
-              <div className="sm:col-span-2">
+              <div className="space-y-2 sm:col-span-2">
                 <label
                   htmlFor="target"
                   className="text-sm font-medium"
@@ -266,11 +264,14 @@ export default function AssetsPage() {
                   }
                   placeholder="https://api.example.com"
                   required
-                  className="mt-2"
                 />
+
+                <p className="text-xs text-muted-foreground">
+                  The URL, hostname, service, or other target associated with this asset.
+                </p>
               </div>
 
-              <div className="sm:col-span-2">
+              <div className="space-y-2 sm:col-span-2">
                 <label
                   htmlFor="description"
                   className="text-sm font-medium"
@@ -285,9 +286,13 @@ export default function AssetsPage() {
                     setDescription(event.target.value)
                   }
                   placeholder="Production API endpoint"
-                  rows={3}
-                  className="mt-2 w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  rows={4}
+                  className="w-full resize-none rounded-lg border border-input bg-background/60 px-3 py-2.5 text-sm outline-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:bg-background focus-visible:ring-3 focus-visible:ring-ring/50"
                 />
+
+                <p className="text-xs text-muted-foreground">
+                  Add useful context about the asset for security analysis and monitoring.
+                </p>
               </div>
 
               {formError && (
@@ -296,7 +301,7 @@ export default function AssetsPage() {
                 </p>
               )}
 
-              <div className="flex gap-2 sm:col-span-2">
+              <div className="flex flex-wrap gap-2 sm:col-span-2">
                 <Button
                   type="submit"
                   disabled={saving}
@@ -324,7 +329,6 @@ export default function AssetsPage() {
             </form>
           </CardContent>
         </Card>
-
         {loading && (
           <p className="mt-8 text-sm text-muted-foreground">
             Loading assets...
@@ -357,8 +361,7 @@ export default function AssetsPage() {
             {assets.map((asset) => (
               <div
                 key={asset.id}
-                className="grid grid-cols-6 items-center border-b border-white/10 px-4 py-4 text-sm last:border-b-0"
-              >
+                className="group grid grid-cols-[2fr_1fr_2fr_2fr_auto_auto] items-center gap-4 border-b border-border/60 px-4 py-4 text-sm transition-colors duration-200 last:border-b-0 hover:bg-primary/[0.04] dark:hover:bg-primary/[0.06]"               >
                 <span className="font-medium">
                   {asset.name}
                 </span>
