@@ -79,20 +79,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "hidden h-screen shrink-0 border-r bg-background transition-all duration-200 md:flex md:flex-col",
-        collapsed ? "w-16" : "w-64",
+        "hidden h-screen shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex md:flex-col",
+        collapsed ? "w-[68px]" : "w-60",
       )}
     >
       {/* Ceron branding */}
       <div
         className={cn(
-          "flex h-16 items-center",
+          "flex h-16 shrink-0 items-center",
           collapsed ? "justify-center" : "px-4",
         )}
       >
         <div className="flex items-center gap-3">
           {/* Ceron logo placeholder */}
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary font-bold text-sidebar-primary-foreground shadow-sm">
             C
           </div>
 
@@ -110,7 +110,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
       </div>
 
-      <Separator />
+      <Separator className="bg-sidebar-border" />
 
       {/* Main navigation */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3">
@@ -125,10 +125,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "group flex h-9 w-full items-center rounded-md px-3 text-sm font-medium transition-colors duration-200",
-                  "text-foreground/80 hover:bg-accent hover:text-accent-foreground",
+                  "group flex h-10 w-full items-center rounded-lg px-3 text-sm font-medium transition-colors duration-200",
+                  "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   isActive &&
-                    "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
+                    "bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary/10 hover:text-sidebar-primary",
                   collapsed && "justify-center px-0",
                 )}
                 title={collapsed ? item.label : undefined}
@@ -150,14 +150,14 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
       </nav>
 
-      <Separator />
+      <Separator className="bg-sidebar-border" />
 
       {/* Sidebar collapse control */}
       <div className="p-3">
         <Button
           variant="outline"
           className={cn(
-            "w-full",
+            "w-full border-sidebar-border bg-sidebar/50 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             collapsed && "px-0",
           )}
           onClick={onToggle}

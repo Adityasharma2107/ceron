@@ -36,8 +36,8 @@ export function Topbar({
   }
 
   return (
-    <header className="flex h-16 w-full min-w-0 items-center border-b bg-background">
-      <div className="flex min-w-0 flex-1 items-center gap-2 px-4">
+    <header className="flex h-14 w-full shrink-0 items-center border-b border-border/70 bg-background/95 backdrop-blur-xl">
+      <div className="flex min-w-0 flex-1 items-center gap-2 px-3 sm:px-4">
         {/* Mobile navigation trigger */}
         <Button
           variant="ghost"
@@ -72,13 +72,16 @@ export function Topbar({
           />
         </Button>
 
-        <Separator orientation="vertical" className="mx-2 h-6" />
+        <Separator
+          orientation="vertical"
+          className="mx-1 h-6"
+        />
 
         {/* Search */}
-        <div className="flex min-w-0 max-w-md flex-1 items-center">
+        <div className="flex min-w-0 max-w-lg flex-1 items-center">
           <Button
             variant="outline"
-            className="w-full justify-start gap-2 text-muted-foreground"
+            className="h-9 w-full justify-start gap-2 rounded-lg border-border/70 bg-background/60 text-muted-foreground shadow-none transition-colors hover:bg-muted/50 hover:text-foreground"
           >
             <Search
               className="size-4 shrink-0"
@@ -86,7 +89,7 @@ export function Topbar({
               aria-hidden="true"
             />
 
-            <span className="truncate">
+            <span className="truncate text-sm">
               Search Ceron...
             </span>
           </Button>
@@ -94,11 +97,12 @@ export function Topbar({
       </div>
 
       {/* Important actions only */}
-      <div className="flex shrink-0 items-center gap-1 px-4">
+      <div className="flex shrink-0 items-center gap-1 px-3 sm:px-4">
         {/* Theme toggle */}
         <Button
           variant="ghost"
           size="icon"
+          className="transition-colors hover:bg-muted/60"
           onClick={toggleTheme}
           aria-label={
             mounted && theme === "dark"
@@ -125,6 +129,7 @@ export function Topbar({
         <Button
           variant="ghost"
           size="icon"
+          className="transition-colors hover:bg-muted/60"
           aria-label="Notifications"
         >
           <Bell
@@ -138,7 +143,7 @@ export function Topbar({
         <Button
           variant="outline"
           size="sm"
-          className="ml-2 hidden sm:inline-flex"
+          className="ml-1 hidden h-8 sm:inline-flex"
         >
           Profile
         </Button>

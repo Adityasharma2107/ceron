@@ -20,15 +20,19 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex h-screen w-full min-w-0 overflow-hidden bg-background">
-      {/* Desktop navigation */}
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((value) => !value)}
       />
 
-      {/* Mobile navigation drawer */}
-      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="w-64 p-0">
+      <Sheet
+        open={mobileMenuOpen}
+        onOpenChange={setMobileMenuOpen}
+      >
+        <SheetContent
+          side="left"
+          className="w-64 p-0"
+        >
           <SheetTitle className="sr-only">
             Ceron navigation
           </SheetTitle>
@@ -42,7 +46,6 @@ export function AppShell({ children }: AppShellProps) {
         </SheetContent>
       </Sheet>
 
-      {/* Main application area */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar
           onMobileMenu={() => setMobileMenuOpen(true)}
@@ -52,9 +55,10 @@ export function AppShell({ children }: AppShellProps) {
           sidebarCollapsed={sidebarCollapsed}
         />
 
-        {/* Page content can scroll vertically but never horizontally */}
-        <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-          {children}
+        <main className="relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="relative min-h-full motion-safe:transition-opacity motion-safe:duration-200">
+            {children}
+          </div>
         </main>
       </div>
     </div>
