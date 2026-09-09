@@ -190,4 +190,50 @@
     ),
     var(--background);
 }
+
+@keyframes ceron-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes ceron-twinkle-soft {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.animate-ceron-twinkle {
+  animation: ceron-twinkle 7s ease-in-out infinite;
+}
+
+.animate-ceron-twinkle-soft {
+  animation: ceron-twinkle-soft 11s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ceron-twinkle,
+  .animate-ceron-twinkle-soft {
+    animation: none;
+  }
+}
+
+
+
+
+
+
+
+
+
 }
