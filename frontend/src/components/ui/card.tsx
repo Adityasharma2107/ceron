@@ -29,8 +29,8 @@ function Card({
         "relative overflow-hidden rounded-xl border border-border/70",
         "bg-card/90 backdrop-blur-xl",
         "shadow-sm dark:bg-card/75 dark:shadow-[0_8px_32px_-20px_rgba(0,0,0,0.8)]",
-        "transition-all duration-300 ease-out",
-        "hover:-translate-y-0.5",
+        "transition-[transform,box-shadow,border-color] duration-300 ease-out",
+        "hover:-translate-y-0.5 hover:shadow-lg",
         glowClasses[glow],
         className,
       )}

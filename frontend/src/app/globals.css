@@ -223,9 +223,26 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animate-ceron-twinkle,
-  .animate-ceron-twinkle-soft {
+  .animate-ceron-twinkle-soft,
+  .animate-ceron-page-enter {
     animation: none;
   }
+}
+
+@keyframes ceron-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-ceron-page-enter {
+  animation: ceron-page-enter 500ms ease-out both;
 }
 
 
