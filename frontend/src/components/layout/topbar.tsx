@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import {
   Bell,
   Menu,
@@ -19,17 +19,21 @@ interface TopbarProps {
   sidebarCollapsed: boolean;
 }
 
+function subscribeToHydration() {
+  return () => {};
+}
+
 export function Topbar({
   onMobileMenu,
   onSidebarToggle,
   sidebarCollapsed,
 }: TopbarProps) {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
 
   function toggleTheme() {
     setTheme(theme === "dark" ? "light" : "dark");

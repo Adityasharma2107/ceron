@@ -137,7 +137,7 @@ export default function AIAnalysisPage() {
               </div>
 
               <div
-                className={`rounded-full border px-3 py-1 text-sm font-medium ${
+                className={`ceron-technical rounded-full border px-3 py-1 text-sm font-medium ${
                   security.detected
                     ? "border-destructive/50 bg-destructive/10 text-destructive"
                     : "border-border bg-muted text-foreground"
@@ -155,7 +155,7 @@ export default function AIAnalysisPage() {
                   Threat detected
                 </p>
 
-                <p className="mt-1 text-lg font-semibold">
+                <p className="ceron-technical mt-1 text-lg font-semibold">
                   {security.detected ? "Yes" : "No"}
                 </p>
               </div>
@@ -165,7 +165,7 @@ export default function AIAnalysisPage() {
                   Overall severity
                 </p>
 
-                <p className="mt-1 text-lg font-semibold">
+                <p className="ceron-technical mt-1 text-lg font-semibold">
                   {severityLabel(security.severity)}
                 </p>
               </div>
@@ -193,7 +193,7 @@ export default function AIAnalysisPage() {
                         </p>
                       </div>
 
-                      <span className="rounded-full border px-3 py-1 text-sm font-medium">
+                      <span className="ceron-technical rounded-full border px-3 py-1 text-sm font-medium">
                         {severityLabel(detector.severity)}
                       </span>
                     </div>
