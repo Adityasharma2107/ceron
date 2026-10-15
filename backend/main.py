@@ -18,6 +18,7 @@ from services.asset_service import (
     update_asset,
 )
 from services.risk_service import get_risk_summary
+from services.remediation_service import get_remediation_recommendations
 
 
 app = FastAPI()
@@ -108,6 +109,19 @@ class RiskSummaryResponse(BaseModel):
     severity_counts: dict[str, int]
 
 
+class RemediationRecommendationResponse(BaseModel):
+    """Actionable guidance derived from a detected security finding."""
+
+    id: str
+    title: str
+    description: str
+    priority: Literal["low", "medium", "high"]
+    actions: list[str]
+    categories: list[str]
+    affected_analyses: int
+    last_detected_at: str
+
+
 def analysis_to_response(analysis: Analysis) -> dict:
     """Convert a persisted analysis into the public API response shape."""
 
@@ -181,6 +195,18 @@ async def get_risk_summary_endpoint(
     """Return a risk posture summary from stored analyses and assets."""
 
     return get_risk_summary(db)
+
+
+@app.get(
+    "/api/v1/remediation/recommendations",
+    response_model=list[RemediationRecommendationResponse],
+)
+async def list_remediation_recommendations(
+    db: Session = Depends(get_db),
+):
+    """Return actionable guidance for currently recorded detector findings."""
+
+    return get_remediation_recommendations(db)
 
 
 # ============================================================
