@@ -31,6 +31,14 @@ export interface AnalysisHistoryItem {
   results: DetectorResult[];
 }
 
+export interface RiskSummary {
+  total_assets: number;
+  total_analyses: number;
+  detected_analyses: number;
+  overall_severity: string;
+  severity_counts: Record<string, number>;
+}
+
 /**
  * Sends text to the Ceron analysis API.
  */
@@ -76,4 +84,19 @@ export async function getAnalyses(
   }
 
   return response.json() as Promise<AnalysisHistoryItem[]>;
+}
+
+/**
+ * Retrieves the current risk posture derived from Ceron data.
+ */
+export async function getRiskSummary(): Promise<RiskSummary> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/risk/summary`);
+
+  if (!response.ok) {
+    throw new Error(
+      `Risk summary request failed (${response.status})`,
+    );
+  }
+
+  return response.json() as Promise<RiskSummary>;
 }

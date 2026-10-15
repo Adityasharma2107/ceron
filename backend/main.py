@@ -17,6 +17,7 @@ from services.asset_service import (
     get_assets,
     update_asset,
 )
+from services.risk_service import get_risk_summary
 
 
 app = FastAPI()
@@ -97,6 +98,16 @@ class AnalysisHistoryResponse(BaseModel):
     results: list[AnalysisResultResponse]
 
 
+class RiskSummaryResponse(BaseModel):
+    """Current risk posture derived from persisted Ceron data."""
+
+    total_assets: int
+    total_analyses: int
+    detected_analyses: int
+    overall_severity: Literal["none", "low", "medium", "high"]
+    severity_counts: dict[str, int]
+
+
 def analysis_to_response(analysis: Analysis) -> dict:
     """Convert a persisted analysis into the public API response shape."""
 
@@ -158,6 +169,18 @@ async def list_analyses(
     analyses = get_analyses(db=db, limit=limit)
 
     return [analysis_to_response(analysis) for analysis in analyses]
+
+
+@app.get(
+    "/api/v1/risk/summary",
+    response_model=RiskSummaryResponse,
+)
+async def get_risk_summary_endpoint(
+    db: Session = Depends(get_db),
+):
+    """Return a risk posture summary from stored analyses and assets."""
+
+    return get_risk_summary(db)
 
 
 # ============================================================
