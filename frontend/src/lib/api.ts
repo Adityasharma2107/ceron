@@ -50,6 +50,26 @@ export interface RemediationRecommendation {
   last_detected_at: string;
 }
 
+export interface AssetRecord {
+  id: number;
+  name: string;
+  type: string;
+  target: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScanPlan {
+  id: number;
+  asset_id: number;
+  asset_name: string;
+  asset_target: string;
+  profile: "baseline" | "deep";
+  status: "queued";
+  created_at: string;
+}
+
 /**
  * Sends text to the Ceron analysis API.
  */
@@ -129,4 +149,55 @@ export async function getRemediationRecommendations(): Promise<
   }
 
   return response.json() as Promise<RemediationRecommendation[]>;
+}
+
+/**
+ * Retrieves security assets that can be selected for a scan plan.
+ */
+export async function getAssets(): Promise<AssetRecord[]> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/assets`);
+
+  if (!response.ok) {
+    throw new Error(`Asset request failed (${response.status})`);
+  }
+
+  return response.json() as Promise<AssetRecord[]>;
+}
+
+/**
+ * Retrieves persisted scan plans without executing them.
+ */
+export async function getScans(): Promise<ScanPlan[]> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/scans`);
+
+  if (!response.ok) {
+    throw new Error(`Scan request failed (${response.status})`);
+  }
+
+  return response.json() as Promise<ScanPlan[]>;
+}
+
+/**
+ * Queues a scan plan for a known asset.
+ */
+export async function createScan(
+  assetId: number,
+  profile: ScanPlan["profile"],
+): Promise<ScanPlan> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/scans`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      asset_id: assetId,
+      profile,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Unable to queue scan (${response.status})`);
+  }
+
+  return response.json() as Promise<ScanPlan>;
 }
