@@ -39,6 +39,17 @@ export interface RiskSummary {
   severity_counts: Record<string, number>;
 }
 
+export interface RemediationRecommendation {
+  id: string;
+  title: string;
+  description: string;
+  priority: string;
+  actions: string[];
+  categories: string[];
+  affected_analyses: number;
+  last_detected_at: string;
+}
+
 /**
  * Sends text to the Ceron analysis API.
  */
@@ -99,4 +110,23 @@ export async function getRiskSummary(): Promise<RiskSummary> {
   }
 
   return response.json() as Promise<RiskSummary>;
+}
+
+/**
+ * Retrieves actionable remediation guidance for detected security findings.
+ */
+export async function getRemediationRecommendations(): Promise<
+  RemediationRecommendation[]
+> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/remediation/recommendations`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Remediation request failed (${response.status})`,
+    );
+  }
+
+  return response.json() as Promise<RemediationRecommendation[]>;
 }
