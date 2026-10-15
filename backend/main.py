@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.models import Asset, Analysis
+from db.models import Asset, Analysis, Scan
 from services.analyzer import analyze_text
 from services.analysis_service import get_analyses, save_analysis
 from services.asset_service import (
@@ -19,6 +19,7 @@ from services.asset_service import (
 )
 from services.risk_service import get_risk_summary
 from services.remediation_service import get_remediation_recommendations
+from services.scan_service import create_scan, get_scans
 
 
 app = FastAPI()
@@ -120,6 +121,25 @@ class RemediationRecommendationResponse(BaseModel):
     categories: list[str]
     affected_analyses: int
     last_detected_at: str
+
+
+class ScanCreateRequest(BaseModel):
+    """A scan plan requested for a tracked asset."""
+
+    asset_id: int
+    profile: Literal["baseline", "deep"] = "baseline"
+
+
+class ScanResponse(BaseModel):
+    """A persisted scan plan and its target metadata."""
+
+    id: int
+    asset_id: int
+    asset_name: str
+    asset_target: str
+    profile: Literal["baseline", "deep"]
+    status: Literal["queued"]
+    created_at: str
 
 
 def analysis_to_response(analysis: Analysis) -> dict:
@@ -285,6 +305,20 @@ def asset_to_response(asset: Asset) -> dict:
     }
 
 
+def scan_to_response(scan: Scan) -> dict:
+    """Convert a scan plan into the public API response shape."""
+
+    return {
+        "id": scan.id,
+        "asset_id": scan.asset_id,
+        "asset_name": scan.asset.name,
+        "asset_target": scan.asset.target,
+        "profile": scan.profile,
+        "status": scan.status,
+        "created_at": scan.created_at.isoformat(),
+    }
+
+
 @app.post(
     "/api/v1/assets",
     response_model=AssetResponse,
@@ -322,6 +356,46 @@ async def list_assets(
         asset_to_response(asset)
         for asset in assets
     ]
+
+
+@app.post(
+    "/api/v1/scans",
+    response_model=ScanResponse,
+    status_code=201,
+)
+async def create_scan_endpoint(
+    request: ScanCreateRequest,
+    db: Session = Depends(get_db),
+):
+    """Queue a scan plan for a tracked asset without executing it."""
+
+    asset = get_asset(db=db, asset_id=request.asset_id)
+
+    if asset is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Asset not found",
+        )
+
+    scan = create_scan(
+        db=db,
+        asset=asset,
+        profile=request.profile,
+    )
+
+    return scan_to_response(scan)
+
+
+@app.get(
+    "/api/v1/scans",
+    response_model=list[ScanResponse],
+)
+async def list_scans(
+    db: Session = Depends(get_db),
+):
+    """Return all persisted scan plans without executing them."""
+
+    return [scan_to_response(scan) for scan in get_scans(db)]
 
 
 @app.get(

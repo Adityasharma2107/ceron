@@ -8,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 
 from db.database import Base, get_db
-from db.models import Analysis, AnalysisResult, Asset
+from db.models import Analysis, AnalysisResult, Asset, Scan
 from main import app
 
 
@@ -510,3 +510,81 @@ def test_delete_asset_not_found():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Asset not found"
+
+
+def test_create_scan_plan():
+    create_response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "Production API",
+            "type": "api",
+            "target": "https://api.example.com",
+            "description": None,
+        },
+    )
+
+    asset_id = create_response.json()["id"]
+
+    response = client.post(
+        "/api/v1/scans",
+        json={
+            "asset_id": asset_id,
+            "profile": "deep",
+        },
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["asset_id"] == asset_id
+    assert data["asset_name"] == "Production API"
+    assert data["asset_target"] == "https://api.example.com"
+    assert data["profile"] == "deep"
+    assert data["status"] == "queued"
+
+
+def test_create_scan_plan_rejects_unknown_asset():
+    response = client.post(
+        "/api/v1/scans",
+        json={
+            "asset_id": 999,
+            "profile": "baseline",
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Asset not found"
+
+
+def test_list_scan_plans():
+    create_response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "Production API",
+            "type": "api",
+            "target": "https://api.example.com",
+            "description": None,
+        },
+    )
+
+    client.post(
+        "/api/v1/scans",
+        json={
+            "asset_id": create_response.json()["id"],
+            "profile": "baseline",
+        },
+    )
+
+    response = client.get("/api/v1/scans")
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["status"] == "queued"
+
+    db = TestingSessionLocal()
+
+    try:
+        assert db.query(Scan).count() == 1
+    finally:
+        db.close()

@@ -122,3 +122,44 @@ class Asset(Base):
         onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
+
+    scans: Mapped[list["Scan"]] = relationship(
+        back_populates="asset",
+        cascade="all, delete-orphan",
+    )
+
+
+class Scan(Base):
+    """Represents a planned Ceron security scan for an asset."""
+
+    __tablename__ = "scans"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    asset_id: Mapped[int] = mapped_column(
+        ForeignKey("assets.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    profile: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+    )
+
+    status: Mapped[str] = mapped_column(
+        String(20),
+        default="queued",
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    asset: Mapped[Asset] = relationship(back_populates="scans")
