@@ -203,6 +203,48 @@ def test_analysis_results_are_persisted():
         db.close()
 
 
+def test_list_analyses_returns_persisted_results():
+    client.post(
+        "/api/v1/analyze",
+        json={"text": "Contact me at test@example.com"},
+    )
+
+    response = client.get("/api/v1/analyses")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["text"] == "Contact me at test@example.com"
+    assert data[0]["severity"] == "medium"
+    assert data[0]["results"][1]["type"] == "pii"
+    assert data[0]["results"][1]["categories"] == ["email"]
+
+
+def test_list_analyses_honors_limit():
+    client.post(
+        "/api/v1/analyze",
+        json={"text": "First analysis"},
+    )
+    client.post(
+        "/api/v1/analyze",
+        json={"text": "Second analysis"},
+    )
+
+    response = client.get("/api/v1/analyses?limit=1")
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["text"] == "Second analysis"
+
+
+def test_list_analyses_rejects_invalid_limit():
+    response = client.get("/api/v1/analyses?limit=0")
+
+    assert response.status_code == 422
+
+
 def test_create_asset():
     response = client.post(
         "/api/v1/assets",

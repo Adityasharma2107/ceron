@@ -1,6 +1,7 @@
+import json
 from typing import Literal
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -8,7 +9,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from db.models import Asset, Analysis
 from services.analyzer import analyze_text
-from services.analysis_service import save_analysis
+from services.analysis_service import get_analyses, save_analysis
 from services.asset_service import (
     create_asset,
     delete_asset,
@@ -77,6 +78,49 @@ class AnalysisResponse(BaseModel):
     security_analysis: SecurityAnalysis
 
 
+class AnalysisResultResponse(BaseModel):
+    """A stored detector result returned in analysis history."""
+
+    detected: bool
+    type: Literal["prompt_injection", "pii"] | None
+    severity: Literal["none", "low", "medium", "high"]
+    categories: list[str] | None = None
+
+
+class AnalysisHistoryResponse(BaseModel):
+    """A persisted Ceron analysis with detector details."""
+
+    id: int
+    text: str
+    severity: Literal["none", "low", "medium", "high"]
+    created_at: str
+    results: list[AnalysisResultResponse]
+
+
+def analysis_to_response(analysis: Analysis) -> dict:
+    """Convert a persisted analysis into the public API response shape."""
+
+    return {
+        "id": analysis.id,
+        "text": analysis.text,
+        "severity": analysis.severity,
+        "created_at": analysis.created_at.isoformat(),
+        "results": [
+            {
+                "detected": result.detected,
+                "type": result.type,
+                "severity": result.severity,
+                "categories": (
+                    json.loads(result.categories)
+                    if result.categories
+                    else None
+                ),
+            }
+            for result in analysis.results
+        ],
+    }
+
+
 @app.post(
     "/api/v1/analyze",
     response_model=AnalysisResponse,
@@ -99,6 +143,21 @@ async def analyze(
         "text": request.text,
         "security_analysis": result,
     }
+
+
+@app.get(
+    "/api/v1/analyses",
+    response_model=list[AnalysisHistoryResponse],
+)
+async def list_analyses(
+    limit: int = Query(default=25, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    """Return recent persisted security analyses."""
+
+    analyses = get_analyses(db=db, limit=limit)
+
+    return [analysis_to_response(analysis) for analysis in analyses]
 
 
 # ============================================================

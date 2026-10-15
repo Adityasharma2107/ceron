@@ -1,6 +1,7 @@
 import json
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
 
 from db.models import Analysis, AnalysisResult
 
@@ -53,3 +54,19 @@ def save_analysis(
     db.refresh(analysis)
 
     return analysis
+
+
+def get_analyses(
+    db: Session,
+    limit: int,
+) -> list[Analysis]:
+    """Return recent analyses with their detector results."""
+
+    statement = (
+        select(Analysis)
+        .options(selectinload(Analysis.results))
+        .order_by(Analysis.created_at.desc(), Analysis.id.desc())
+        .limit(limit)
+    )
+
+    return list(db.scalars(statement))

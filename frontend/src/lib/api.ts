@@ -23,6 +23,14 @@ export interface AnalyzeResponse {
   security_analysis: SecurityAnalysis;
 }
 
+export interface AnalysisHistoryItem {
+  id: number;
+  text: string;
+  severity: string;
+  created_at: string;
+  results: DetectorResult[];
+}
+
 /**
  * Sends text to the Ceron analysis API.
  */
@@ -49,4 +57,23 @@ export async function analyzeText(
   }
 
   return response.json() as Promise<AnalyzeResponse>;
+}
+
+/**
+ * Retrieves recent persisted security analyses for reporting.
+ */
+export async function getAnalyses(
+  limit = 25,
+): Promise<AnalysisHistoryItem[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/analyses?limit=${limit}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Analysis history request failed (${response.status})`,
+    );
+  }
+
+  return response.json() as Promise<AnalysisHistoryItem[]>;
 }
