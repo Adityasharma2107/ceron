@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.models import Asset, Analysis, Scan
+from db.models import Asset, Analysis, Scan, Vulnerability
 from services.analyzer import analyze_text
 from services.analysis_service import get_analyses, save_analysis
 from services.asset_service import (
@@ -20,6 +20,11 @@ from services.asset_service import (
 from services.risk_service import get_risk_summary
 from services.remediation_service import get_remediation_recommendations
 from services.scan_service import create_scan, get_scans
+from services.vulnerability_service import (
+    create_vulnerability,
+    get_vulnerabilities,
+    update_vulnerability_status,
+)
 
 
 app = FastAPI()
@@ -140,6 +145,38 @@ class ScanResponse(BaseModel):
     profile: Literal["baseline", "deep"]
     status: Literal["queued"]
     created_at: str
+
+
+class VulnerabilityCreateRequest(BaseModel):
+    """A vulnerability finding recorded against a tracked asset."""
+
+    asset_id: int
+    identifier: str = Field(min_length=1, max_length=100)
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = None
+    severity: Literal["low", "medium", "high", "critical"]
+
+
+class VulnerabilityStatusUpdateRequest(BaseModel):
+    """A lifecycle transition for a recorded vulnerability."""
+
+    status: Literal["open", "accepted_risk", "remediated"]
+
+
+class VulnerabilityResponse(BaseModel):
+    """A vulnerability finding and its linked asset metadata."""
+
+    id: int
+    asset_id: int
+    asset_name: str
+    asset_target: str
+    identifier: str
+    title: str
+    description: str | None
+    severity: Literal["low", "medium", "high", "critical"]
+    status: Literal["open", "accepted_risk", "remediated"]
+    created_at: str
+    updated_at: str
 
 
 def analysis_to_response(analysis: Analysis) -> dict:
@@ -319,6 +356,24 @@ def scan_to_response(scan: Scan) -> dict:
     }
 
 
+def vulnerability_to_response(vulnerability: Vulnerability) -> dict:
+    """Convert a vulnerability finding into the public API response shape."""
+
+    return {
+        "id": vulnerability.id,
+        "asset_id": vulnerability.asset_id,
+        "asset_name": vulnerability.asset.name,
+        "asset_target": vulnerability.asset.target,
+        "identifier": vulnerability.identifier,
+        "title": vulnerability.title,
+        "description": vulnerability.description,
+        "severity": vulnerability.severity,
+        "status": vulnerability.status,
+        "created_at": vulnerability.created_at.isoformat(),
+        "updated_at": vulnerability.updated_at.isoformat(),
+    }
+
+
 @app.post(
     "/api/v1/assets",
     response_model=AssetResponse,
@@ -396,6 +451,78 @@ async def list_scans(
     """Return all persisted scan plans without executing them."""
 
     return [scan_to_response(scan) for scan in get_scans(db)]
+
+
+@app.post(
+    "/api/v1/vulnerabilities",
+    response_model=VulnerabilityResponse,
+    status_code=201,
+)
+async def create_vulnerability_endpoint(
+    request: VulnerabilityCreateRequest,
+    db: Session = Depends(get_db),
+):
+    """Record a vulnerability finding against a tracked asset."""
+
+    asset = get_asset(db=db, asset_id=request.asset_id)
+
+    if asset is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Asset not found",
+        )
+
+    vulnerability = create_vulnerability(
+        db=db,
+        asset=asset,
+        identifier=request.identifier,
+        title=request.title,
+        description=request.description,
+        severity=request.severity,
+    )
+
+    return vulnerability_to_response(vulnerability)
+
+
+@app.get(
+    "/api/v1/vulnerabilities",
+    response_model=list[VulnerabilityResponse],
+)
+async def list_vulnerabilities(
+    db: Session = Depends(get_db),
+):
+    """Return all recorded vulnerability findings."""
+
+    return [
+        vulnerability_to_response(vulnerability)
+        for vulnerability in get_vulnerabilities(db)
+    ]
+
+
+@app.patch(
+    "/api/v1/vulnerabilities/{vulnerability_id}",
+    response_model=VulnerabilityResponse,
+)
+async def update_vulnerability_status_endpoint(
+    vulnerability_id: int,
+    request: VulnerabilityStatusUpdateRequest,
+    db: Session = Depends(get_db),
+):
+    """Update a recorded vulnerability's lifecycle status."""
+
+    vulnerability = update_vulnerability_status(
+        db=db,
+        vulnerability_id=vulnerability_id,
+        status=request.status,
+    )
+
+    if vulnerability is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Vulnerability not found",
+        )
+
+    return vulnerability_to_response(vulnerability)
 
 
 @app.get(

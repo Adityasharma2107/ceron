@@ -8,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 
 from db.database import Base, get_db
-from db.models import Analysis, AnalysisResult, Asset, Scan
+from db.models import Analysis, AnalysisResult, Asset, Scan, Vulnerability
 from main import app
 
 
@@ -588,3 +588,101 @@ def test_list_scan_plans():
         assert db.query(Scan).count() == 1
     finally:
         db.close()
+
+
+def test_create_vulnerability():
+    create_response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "Production API",
+            "type": "api",
+            "target": "https://api.example.com",
+            "description": None,
+        },
+    )
+
+    response = client.post(
+        "/api/v1/vulnerabilities",
+        json={
+            "asset_id": create_response.json()["id"],
+            "identifier": "CVE-2026-12345",
+            "title": "Example vulnerable dependency",
+            "description": "A package requires an upgrade.",
+            "severity": "high",
+        },
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["asset_name"] == "Production API"
+    assert data["identifier"] == "CVE-2026-12345"
+    assert data["severity"] == "high"
+    assert data["status"] == "open"
+
+
+def test_create_vulnerability_rejects_unknown_asset():
+    response = client.post(
+        "/api/v1/vulnerabilities",
+        json={
+            "asset_id": 999,
+            "identifier": "CVE-2026-12345",
+            "title": "Example vulnerable dependency",
+            "severity": "high",
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Asset not found"
+
+
+def test_list_and_update_vulnerabilities():
+    create_asset_response = client.post(
+        "/api/v1/assets",
+        json={
+            "name": "Production API",
+            "type": "api",
+            "target": "https://api.example.com",
+            "description": None,
+        },
+    )
+    create_vulnerability_response = client.post(
+        "/api/v1/vulnerabilities",
+        json={
+            "asset_id": create_asset_response.json()["id"],
+            "identifier": "CVE-2026-12345",
+            "title": "Example vulnerable dependency",
+            "severity": "critical",
+        },
+    )
+
+    list_response = client.get("/api/v1/vulnerabilities")
+
+    assert list_response.status_code == 200
+    assert len(list_response.json()) == 1
+
+    update_response = client.patch(
+        f"/api/v1/vulnerabilities/{create_vulnerability_response.json()['id']}",
+        json={"status": "remediated"},
+    )
+
+    assert update_response.status_code == 200
+    assert update_response.json()["status"] == "remediated"
+
+    db = TestingSessionLocal()
+
+    try:
+        assert db.query(Vulnerability).count() == 1
+    finally:
+        db.close()
+
+
+def test_update_vulnerability_rejects_unknown_finding():
+    response = client.patch(
+        "/api/v1/vulnerabilities/999",
+        json={"status": "remediated"},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Vulnerability not found"

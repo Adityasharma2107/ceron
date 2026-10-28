@@ -128,6 +128,11 @@ class Asset(Base):
         cascade="all, delete-orphan",
     )
 
+    vulnerabilities: Mapped[list["Vulnerability"]] = relationship(
+        back_populates="asset",
+        cascade="all, delete-orphan",
+    )
+
 
 class Scan(Base):
     """Represents a planned Ceron security scan for an asset."""
@@ -163,3 +168,61 @@ class Scan(Base):
     )
 
     asset: Mapped[Asset] = relationship(back_populates="scans")
+
+
+class Vulnerability(Base):
+    """A security finding recorded against a Ceron asset."""
+
+    __tablename__ = "vulnerabilities"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    asset_id: Mapped[int] = mapped_column(
+        ForeignKey("assets.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    identifier: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    title: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    severity: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+    )
+
+    status: Mapped[str] = mapped_column(
+        String(30),
+        default="open",
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    asset: Mapped[Asset] = relationship(back_populates="vulnerabilities")
