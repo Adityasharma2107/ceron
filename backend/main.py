@@ -26,6 +26,7 @@ from services.vulnerability_service import (
     update_vulnerability_status,
 )
 from services.dashboard_service import get_dashboard_summary
+from services.platform_service import get_platform_status
 
 
 app = FastAPI()
@@ -215,6 +216,16 @@ class DashboardSummaryResponse(BaseModel):
     critical_vulnerabilities: int
     recent_vulnerabilities: list[DashboardVulnerabilityResponse]
     recent_scans: list[DashboardScanResponse]
+
+
+class PlatformStatusResponse(BaseModel):
+    """Safe Ceron runtime status for operator settings."""
+
+    api_status: Literal["operational"]
+    database_status: Literal["connected"]
+    analysis_engine: Literal["deterministic"]
+    scan_execution_enabled: bool
+    authentication_enabled: bool
 
 
 def analysis_to_response(analysis: Analysis) -> dict:
@@ -461,6 +472,18 @@ async def get_dashboard_summary_endpoint(
             for scan in summary["recent_scans"]
         ],
     }
+
+
+@app.get(
+    "/api/v1/platform/status",
+    response_model=PlatformStatusResponse,
+)
+async def get_platform_status_endpoint(
+    db: Session = Depends(get_db),
+):
+    """Return safe platform readiness status for operators."""
+
+    return get_platform_status(db)
 
 
 @app.post(

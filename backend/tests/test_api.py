@@ -750,3 +750,16 @@ def test_dashboard_summary_aggregates_platform_data():
     assert data["critical_vulnerabilities"] == 1
     assert data["recent_vulnerabilities"][0]["identifier"] == "CVE-2026-12345"
     assert data["recent_scans"][0]["asset_name"] == "Production API"
+
+
+def test_platform_status_reports_safe_readiness_information():
+    response = client.get("/api/v1/platform/status")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "api_status": "operational",
+        "database_status": "connected",
+        "analysis_engine": "deterministic",
+        "scan_execution_enabled": False,
+        "authentication_enabled": False,
+    }
