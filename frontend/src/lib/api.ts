@@ -87,6 +87,37 @@ export interface VulnerabilityRecord {
   updated_at: string;
 }
 
+export interface DashboardVulnerability {
+  id: number;
+  asset_name: string;
+  asset_target: string;
+  identifier: string;
+  title: string;
+  severity: VulnerabilitySeverity;
+  updated_at: string;
+}
+
+export interface DashboardScan {
+  id: number;
+  asset_name: string;
+  asset_target: string;
+  profile: ScanPlan["profile"];
+  status: ScanPlan["status"];
+  created_at: string;
+}
+
+export interface DashboardSummary {
+  total_assets: number;
+  total_analyses: number;
+  detected_analyses: number;
+  overall_severity: string;
+  queued_scans: number;
+  open_vulnerabilities: number;
+  critical_vulnerabilities: number;
+  recent_vulnerabilities: DashboardVulnerability[];
+  recent_scans: DashboardScan[];
+}
+
 /**
  * Sends text to the Ceron analysis API.
  */
@@ -288,4 +319,17 @@ export async function updateVulnerabilityStatus(
   }
 
   return response.json() as Promise<VulnerabilityRecord>;
+}
+
+/**
+ * Retrieves the cross-module operational overview for the dashboard.
+ */
+export async function getDashboardSummary(): Promise<DashboardSummary> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/dashboard/summary`);
+
+  if (!response.ok) {
+    throw new Error(`Dashboard request failed (${response.status})`);
+  }
+
+  return response.json() as Promise<DashboardSummary>;
 }
