@@ -25,6 +25,7 @@ from services.vulnerability_service import (
     get_vulnerabilities,
     update_vulnerability_status,
 )
+from services.dashboard_service import get_dashboard_summary
 
 
 app = FastAPI()
@@ -177,6 +178,43 @@ class VulnerabilityResponse(BaseModel):
     status: Literal["open", "accepted_risk", "remediated"]
     created_at: str
     updated_at: str
+
+
+class DashboardVulnerabilityResponse(BaseModel):
+    """A recent open vulnerability shown in the operational overview."""
+
+    id: int
+    asset_name: str
+    asset_target: str
+    identifier: str
+    title: str
+    severity: Literal["low", "medium", "high", "critical"]
+    updated_at: str
+
+
+class DashboardScanResponse(BaseModel):
+    """A recent scan plan shown in the operational overview."""
+
+    id: int
+    asset_name: str
+    asset_target: str
+    profile: Literal["baseline", "deep"]
+    status: Literal["queued"]
+    created_at: str
+
+
+class DashboardSummaryResponse(BaseModel):
+    """Cross-module operational overview for the Ceron dashboard."""
+
+    total_assets: int
+    total_analyses: int
+    detected_analyses: int
+    overall_severity: Literal["none", "low", "medium", "high"]
+    queued_scans: int
+    open_vulnerabilities: int
+    critical_vulnerabilities: int
+    recent_vulnerabilities: list[DashboardVulnerabilityResponse]
+    recent_scans: list[DashboardScanResponse]
 
 
 def analysis_to_response(analysis: Analysis) -> dict:
@@ -371,6 +409,57 @@ def vulnerability_to_response(vulnerability: Vulnerability) -> dict:
         "status": vulnerability.status,
         "created_at": vulnerability.created_at.isoformat(),
         "updated_at": vulnerability.updated_at.isoformat(),
+    }
+
+
+def dashboard_vulnerability_to_response(vulnerability: Vulnerability) -> dict:
+    """Convert a vulnerability into its dashboard summary shape."""
+
+    return {
+        "id": vulnerability.id,
+        "asset_name": vulnerability.asset.name,
+        "asset_target": vulnerability.asset.target,
+        "identifier": vulnerability.identifier,
+        "title": vulnerability.title,
+        "severity": vulnerability.severity,
+        "updated_at": vulnerability.updated_at.isoformat(),
+    }
+
+
+def dashboard_scan_to_response(scan: Scan) -> dict:
+    """Convert a scan plan into its dashboard summary shape."""
+
+    return {
+        "id": scan.id,
+        "asset_name": scan.asset.name,
+        "asset_target": scan.asset.target,
+        "profile": scan.profile,
+        "status": scan.status,
+        "created_at": scan.created_at.isoformat(),
+    }
+
+
+@app.get(
+    "/api/v1/dashboard/summary",
+    response_model=DashboardSummaryResponse,
+)
+async def get_dashboard_summary_endpoint(
+    db: Session = Depends(get_db),
+):
+    """Return a cross-module operational overview."""
+
+    summary = get_dashboard_summary(db)
+
+    return {
+        **summary,
+        "recent_vulnerabilities": [
+            dashboard_vulnerability_to_response(vulnerability)
+            for vulnerability in summary["recent_vulnerabilities"]
+        ],
+        "recent_scans": [
+            dashboard_scan_to_response(scan)
+            for scan in summary["recent_scans"]
+        ],
     }
 
 
