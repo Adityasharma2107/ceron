@@ -118,6 +118,14 @@ export interface DashboardSummary {
   recent_scans: DashboardScan[];
 }
 
+export interface PlatformStatus {
+  api_status: "operational";
+  database_status: "connected";
+  analysis_engine: "deterministic";
+  scan_execution_enabled: boolean;
+  authentication_enabled: boolean;
+}
+
 /**
  * Sends text to the Ceron analysis API.
  */
@@ -332,4 +340,17 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
   }
 
   return response.json() as Promise<DashboardSummary>;
+}
+
+/**
+ * Retrieves safe runtime readiness information for operator settings.
+ */
+export async function getPlatformStatus(): Promise<PlatformStatus> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/platform/status`);
+
+  if (!response.ok) {
+    throw new Error(`Platform status request failed (${response.status})`);
+  }
+
+  return response.json() as Promise<PlatformStatus>;
 }
