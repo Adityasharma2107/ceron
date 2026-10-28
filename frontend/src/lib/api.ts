@@ -70,6 +70,23 @@ export interface ScanPlan {
   created_at: string;
 }
 
+export type VulnerabilitySeverity = "low" | "medium" | "high" | "critical";
+export type VulnerabilityStatus = "open" | "accepted_risk" | "remediated";
+
+export interface VulnerabilityRecord {
+  id: number;
+  asset_id: number;
+  asset_name: string;
+  asset_target: string;
+  identifier: string;
+  title: string;
+  description: string | null;
+  severity: VulnerabilitySeverity;
+  status: VulnerabilityStatus;
+  created_at: string;
+  updated_at: string;
+}
+
 /**
  * Sends text to the Ceron analysis API.
  */
@@ -200,4 +217,75 @@ export async function createScan(
   }
 
   return response.json() as Promise<ScanPlan>;
+}
+
+/**
+ * Retrieves recorded vulnerability findings.
+ */
+export async function getVulnerabilities(): Promise<
+  VulnerabilityRecord[]
+> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/vulnerabilities`);
+
+  if (!response.ok) {
+    throw new Error(`Vulnerability request failed (${response.status})`);
+  }
+
+  return response.json() as Promise<VulnerabilityRecord[]>;
+}
+
+/**
+ * Records a manual or imported vulnerability finding for an asset.
+ */
+export async function createVulnerability(input: {
+  assetId: number;
+  identifier: string;
+  title: string;
+  description: string;
+  severity: VulnerabilitySeverity;
+}): Promise<VulnerabilityRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/vulnerabilities`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      asset_id: input.assetId,
+      identifier: input.identifier,
+      title: input.title,
+      description: input.description || null,
+      severity: input.severity,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Unable to record vulnerability (${response.status})`);
+  }
+
+  return response.json() as Promise<VulnerabilityRecord>;
+}
+
+/**
+ * Updates the lifecycle status of a recorded vulnerability.
+ */
+export async function updateVulnerabilityStatus(
+  vulnerabilityId: number,
+  status: VulnerabilityStatus,
+): Promise<VulnerabilityRecord> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/vulnerabilities/${vulnerabilityId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Unable to update vulnerability (${response.status})`);
+  }
+
+  return response.json() as Promise<VulnerabilityRecord>;
 }
